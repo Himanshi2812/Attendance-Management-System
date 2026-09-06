@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #FAFAFA;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Polished Card & Container Utilities */
+.ent-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+  border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ent-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+}
+
+.dark .ent-card {
+  background: #111827;
+  border-color: #1F293D;
+  box-shadow: none;
+}
+
+.dark .ent-card:hover {
+  border-color: #374151;
+}
+
+/* Ultra-Clean Status Badges (Light & Dark Compatible) */
+.badge-present {
+  background-color: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dark .badge-present {
+  background-color: rgba(6, 78, 59, 0.4);
+  color: #34D399;
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.badge-late {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dark .badge-late {
+  background-color: rgba(120, 53, 15, 0.4);
+  color: #FBBF24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.badge-half-day {
+  background-color: #FFF7ED;
+  color: #C2410C;
+  border: 1px solid #FED7AA;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dark .badge-half-day {
+  background-color: rgba(124, 45, 18, 0.4);
+  color: #FB923C;
+  border-color: rgba(251, 146, 60, 0.3);
+}
+
+.badge-absent {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FCA5A5;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dark .badge-absent {
+  background-color: rgba(127, 29, 29, 0.4);
+  color: #F87171;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+.badge-leave {
+  background-color: #FAF5FF;
+  color: #7E22CE;
+  border: 1px solid #E9D5FF;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dark .badge-leave {
+  background-color: rgba(88, 28, 135, 0.4);
+  color: #C084FC;
+  border-color: rgba(192, 132, 252, 0.3);
+}
+
+/* Glassmorphism Accents */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
