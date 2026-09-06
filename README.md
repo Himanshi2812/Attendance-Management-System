@@ -1,5 +1,12 @@
 # Employee Attendance Management System (MERN Stack Architecture)
 
+![MERN Stack](https://img.shields.io/badge/Stack-MERN-green?style=for-the-badge&logo=mongodb)
+![React 18](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Framework-Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Styling-TailwindCSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+
 An enterprise-grade, full-stack **Employee Attendance Management System** developed with the **MERN Stack** (**MongoDB / Mongoose, Express.js, React 18, Node.js**) & **TailwindCSS**. Features an interactive **HR Administration Panel**, **Employee Dashboard**, **Real-Time Check-In/Out Engine**, **Working Hours & Overtime Engine**, **Automated Leave Deduction Calculator**, **Interactive Analytics**, and **Turnkey Seed Data**.
 
 ---
@@ -20,10 +27,10 @@ An enterprise-grade, full-stack **Employee Attendance Management System** develo
 
 ## 🛠️ Technology Stack (MERN Architecture)
 
-- **M** - **MongoDB / Mongoose ODM** (and zero-config embedded database engine for instant execution)
-- **E** - **Express.js REST API** (Modular controllers, JWT auth middleware, role guards)
-- **R** - **React 18 & Vite** (TailwindCSS, Recharts, Lucide Icons, Context API state management)
-- **N** - **Node.js Runtime**
+- **M** – **MongoDB / Mongoose ODM Schemas** (`User`, `Attendance`, `LeaveBalance`, `LeaveRequest`, `CompanySettings` in `/backend/src/models`) & zero-config local engine.
+- **E** – **Express.js REST API** (Modular controllers, JWT auth middleware, role guards)
+- **R** – **React 18 & Vite** (TailwindCSS, Recharts, Lucide Icons, Context API state management)
+- **N** – **Node.js Runtime**
 
 ---
 
