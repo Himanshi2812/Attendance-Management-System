@@ -1,5 +1,7 @@
 # Employee Attendance Management System
 
+**Tech Stack:** MERN (MongoDB, Express.js, React 18, Node.js) | **Styling:** Tailwind CSS
+
 A full-stack Employee Attendance Management System built using the MERN stack (MongoDB, Express.js, React 18, Node.js) and Tailwind CSS. The application includes role-based authentication, real-time check-in and check-out tracking, working hours calculation, an automated leave deduction engine, an HR administration portal, and employee dashboard metrics.
 
 ---
