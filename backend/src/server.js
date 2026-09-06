@@ -39,12 +39,16 @@ app.get('*', (req, res) => {
 async function startServer() {
   try {
     await initSchema();
-    app.listen(PORT, () => {
-      console.log(`🚀 Employee Attendance Backend running on http://localhost:${PORT}`);
-    });
+    if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+      app.listen(PORT, () => {
+        console.log(`🚀 Employee Attendance Backend running on http://localhost:${PORT}`);
+      });
+    }
   } catch (err) {
     console.error('Failed to start server:', err);
   }
 }
 
 startServer();
+
+module.exports = app;
