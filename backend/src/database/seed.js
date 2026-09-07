@@ -4,7 +4,7 @@ const { getOne, execute, query } = require('./db');
 
 async function seed() {
   await initSchema();
-  console.log('🌱 Starting Clean Minimal Database Seeding...');
+  console.log('🌱 Starting Indian Employee Profiles Database Seeding...');
 
   const passwordHash = await bcrypt.hash('password123', 10);
 
@@ -35,10 +35,10 @@ async function seed() {
     );
   }
 
-  // 3. Clean Minimal Employees (Only 3 profiles)
+  // 3. Realistic Indian Employee Profiles
   const usersToSeed = [
     {
-      name: 'David Chen',
+      name: 'Himanshi Kalra',
       email: 'admin@company.com',
       password_hash: passwordHash,
       role: 'HR_ADMIN',
@@ -48,7 +48,7 @@ async function seed() {
       join_date: '2022-01-15'
     },
     {
-      name: 'Alexander Wright',
+      name: 'Sakshi Kumari',
       email: 'john@company.com',
       password_hash: passwordHash,
       role: 'EMPLOYEE',
@@ -58,7 +58,7 @@ async function seed() {
       join_date: '2023-03-01'
     },
     {
-      name: 'Sophia Martinez',
+      name: 'Ishita Mukherjee',
       email: 'emily@company.com',
       password_hash: passwordHash,
       role: 'EMPLOYEE',
@@ -66,6 +66,36 @@ async function seed() {
       position: 'Lead UX Architect',
       employee_code: 'EMP-1092',
       join_date: '2023-06-10'
+    },
+    {
+      name: 'Anurag Kumar',
+      email: 'anurag@company.com',
+      password_hash: passwordHash,
+      role: 'EMPLOYEE',
+      department: 'Backend Engineering',
+      position: 'Senior Systems Engineer',
+      employee_code: 'EMP-1093',
+      join_date: '2023-08-15'
+    },
+    {
+      name: 'Swakshi Singh',
+      email: 'swakshi@company.com',
+      password_hash: passwordHash,
+      role: 'EMPLOYEE',
+      department: 'Web Development',
+      position: 'Full Stack Engineer',
+      employee_code: 'EMP-1094',
+      join_date: '2023-11-01'
+    },
+    {
+      name: 'Subham Nayek',
+      email: 'subham@company.com',
+      password_hash: passwordHash,
+      role: 'EMPLOYEE',
+      department: 'Quality Assurance',
+      position: 'QA Automation Lead',
+      employee_code: 'EMP-1095',
+      join_date: '2024-01-10'
     }
   ];
 
@@ -83,13 +113,14 @@ async function seed() {
     );
   }
 
-  // 4. Minimal Clean Attendance Logs (Only 3 recent days)
-  const alex = await getOne("SELECT id FROM users WHERE email = 'john@company.com'");
-  const sophia = await getOne("SELECT id FROM users WHERE email = 'emily@company.com'");
+  // 4. Sample Clean Attendance Logs
+  const sakshi = await getOne("SELECT id FROM users WHERE email = 'john@company.com'");
+  const ishita = await getOne("SELECT id FROM users WHERE email = 'emily@company.com'");
+  const anurag = await getOne("SELECT id FROM users WHERE email = 'anurag@company.com'");
 
   const sampleLogs = [
     {
-      user_id: alex.id,
+      user_id: sakshi.id,
       date: '2026-09-04',
       check_in: '08:55:00',
       check_out: '17:05:00',
@@ -99,7 +130,7 @@ async function seed() {
       notes: 'Single Sign-On Authentication'
     },
     {
-      user_id: alex.id,
+      user_id: sakshi.id,
       date: '2026-09-05',
       check_in: '09:20:00',
       check_out: '17:30:00',
@@ -109,7 +140,7 @@ async function seed() {
       notes: 'Transit delay log'
     },
     {
-      user_id: alex.id,
+      user_id: sakshi.id,
       date: '2026-09-06',
       check_in: '08:52:00',
       check_out: '17:00:00',
@@ -119,7 +150,7 @@ async function seed() {
       notes: 'Web Portal Check-in'
     },
     {
-      user_id: sophia.id,
+      user_id: ishita.id,
       date: '2026-09-05',
       check_in: '08:50:00',
       check_out: '17:10:00',
@@ -129,7 +160,7 @@ async function seed() {
       notes: 'Biometric Terminal'
     },
     {
-      user_id: sophia.id,
+      user_id: ishita.id,
       date: '2026-09-06',
       check_in: '08:58:00',
       check_out: '17:02:00',
@@ -137,6 +168,16 @@ async function seed() {
       overtime_hours: 0.06,
       status: 'PRESENT',
       notes: 'Web Portal Check-in'
+    },
+    {
+      user_id: anurag.id,
+      date: '2026-09-06',
+      check_in: '09:00:00',
+      check_out: '17:00:00',
+      working_hours: 8.00,
+      overtime_hours: 0.00,
+      status: 'PRESENT',
+      notes: 'VPN Check-in'
     }
   ];
 
@@ -148,22 +189,22 @@ async function seed() {
     );
   }
 
-  // 5. Clean Minimal Leave Requests (Only 1 pending, 1 approved)
+  // 5. Sample Leave Requests
   await execute(
     `INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, total_days, reason, status, hr_comments)
-     VALUES (?, 'CASUAL', '2026-09-14', '2026-09-15', 2.0, 'Attending IEEE Architecture Summit', 'PENDING', NULL)`,
-    [alex.id]
+     VALUES (?, 'CASUAL', '2026-09-14', '2026-09-15', 2.0, 'Attending Family Function', 'PENDING', NULL)`,
+    [sakshi.id]
   );
 
   await execute(
     `INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, total_days, reason, status, hr_comments)
-     VALUES (?, 'SICK', '2026-09-01', '2026-09-01', 1.0, 'Outpatient medical appointment', 'APPROVED', 'Approved by HR Director')`,
-    [sophia.id]
+     VALUES (?, 'SICK', '2026-09-01', '2026-09-01', 1.0, 'Outpatient medical appointment', 'APPROVED', 'Approved by Himanshi Kalra (HR)')`,
+    [ishita.id]
   );
 
-  console.log(' Clean Minimal Database Seeding Completed!');
+  console.log('✅ Indian Employee Database Seeding Completed Successfully!');
 }
 
 seed().catch((err) => {
-  console.error(' Seeding Failed:', err);
+  console.error('❌ Seeding Failed:', err);
 });

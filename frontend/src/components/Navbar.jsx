@@ -97,13 +97,13 @@ export default function Navbar() {
               </button>
 
               {showDemoMenu && (
-                <div className={`absolute right-0 mt-2 w-64 md:w-72 rounded-xl shadow-xl py-2 z-50 border ${
+                <div className={`absolute right-0 mt-2 w-72 md:w-80 rounded-xl shadow-xl py-2 z-50 border ${
                   isDark ? 'bg-[#111827] border-[#1f293d]' : 'bg-white border-slate-200'
                 }`}>
                   <div className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider border-b ${
                     isDark ? 'text-slate-400 border-[#1f293d]' : 'text-slate-400 border-slate-100'
                   }`}>
-                    Sample Accounts (3 Profiles)
+                    Quick Switch Account (Indian Profiles)
                   </div>
                   <button
                     onClick={() => handleQuickSwitch('admin@company.com')}
@@ -113,7 +113,7 @@ export default function Navbar() {
                   >
                     <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
                     <div>
-                      <div className="font-semibold">David Chen</div>
+                      <div className="font-semibold">Himanshi Kalra</div>
                       <div className="text-[10px] text-slate-400">HR Director (Admin)</div>
                     </div>
                   </button>
@@ -125,20 +125,56 @@ export default function Navbar() {
                   >
                     <User className="w-4 h-4 text-indigo-600 shrink-0" />
                     <div>
-                      <div className="font-semibold">Alexander Wright</div>
+                      <div className="font-semibold">Sakshi Kumari</div>
                       <div className="text-[10px] text-slate-400">Senior Cloud Architect</div>
                     </div>
                   </button>
                   <button
                     onClick={() => handleQuickSwitch('emily@company.com')}
-                    className={`w-full text-left px-4 py-2.5 text-xs flex items-center space-x-3 ${
-                      isDark ? 'hover:bg-[#1f293d] text-slate-200' : 'hover:bg-slate-50 text-slate-800'
+                    className={`w-full text-left px-4 py-2.5 text-xs flex items-center space-x-3 border-b ${
+                      isDark ? 'hover:bg-[#1f293d] border-[#1f293d] text-slate-200' : 'hover:bg-slate-50 border-slate-100 text-slate-800'
                     }`}
                   >
                     <User className="w-4 h-4 text-emerald-600 shrink-0" />
                     <div>
-                      <div className="font-semibold">Sophia Martinez</div>
+                      <div className="font-semibold">Ishita Mukherjee</div>
                       <div className="text-[10px] text-slate-400">Lead UX Architect</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleQuickSwitch('anurag@company.com')}
+                    className={`w-full text-left px-4 py-2.5 text-xs flex items-center space-x-3 border-b ${
+                      isDark ? 'hover:bg-[#1f293d] border-[#1f293d] text-slate-200' : 'hover:bg-slate-50 border-slate-100 text-slate-800'
+                    }`}
+                  >
+                    <User className="w-4 h-4 text-blue-600 shrink-0" />
+                    <div>
+                      <div className="font-semibold">Anurag Kumar</div>
+                      <div className="text-[10px] text-slate-400">Senior Systems Engineer</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleQuickSwitch('swakshi@company.com')}
+                    className={`w-full text-left px-4 py-2.5 text-xs flex items-center space-x-3 border-b ${
+                      isDark ? 'hover:bg-[#1f293d] border-[#1f293d] text-slate-200' : 'hover:bg-slate-50 border-slate-100 text-slate-800'
+                    }`}
+                  >
+                    <User className="w-4 h-4 text-pink-600 shrink-0" />
+                    <div>
+                      <div className="font-semibold">Swakshi Singh</div>
+                      <div className="text-[10px] text-slate-400">Full Stack Engineer</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleQuickSwitch('subham@company.com')}
+                    className={`w-full text-left px-4 py-2.5 text-xs flex items-center space-x-3 ${
+                      isDark ? 'hover:bg-[#1f293d] text-slate-200' : 'hover:bg-slate-50 text-slate-800'
+                    }`}
+                  >
+                    <User className="w-4 h-4 text-amber-600 shrink-0" />
+                    <div>
+                      <div className="font-semibold">Subham Nayek</div>
+                      <div className="text-[10px] text-slate-400">QA Automation Lead</div>
                     </div>
                   </button>
                 </div>
