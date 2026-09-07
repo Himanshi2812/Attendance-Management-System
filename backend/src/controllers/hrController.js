@@ -177,11 +177,153 @@ async function exportReport(req, res) {
   }
 }
 
+async function uploadEmployeesExcel(req, res) {
+  try {
+    const xlsx = require('xlsx');
+    const bcrypt = require('bcryptjs');
+
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ success: false, message: 'No Excel or CSV file uploaded.' });
+    }
+
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const firstSheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[firstSheetName];
+    const rawRows = xlsx.utils.sheet_to_json(sheet, { defval: '' });
+
+    if (!rawRows || rawRows.length === 0) {
+      return res.status(400).json({ success: false, message: 'Uploaded file is empty or has no readable rows.' });
+    }
+
+    const defaultPasswordHash = await bcrypt.hash('password123', 10);
+    let addedCount = 0;
+    let skippedCount = 0;
+    const errors = [];
+    const addedUsers = [];
+
+    for (let index = 0; index < rawRows.length; index++) {
+      const row = rawRows[index];
+      const rowNum = index + 2; // Accounting for 1-based index + header row
+
+      const name = (row.Name || row.name || row['Employee Name'] || row.NAME || '').toString().trim();
+      const email = (row.Email || row.email || row['Email Address'] || row.EMAIL || '').toString().trim().toLowerCase();
+      const department = (row.Department || row.department || row.DEPARTMENT || 'General').toString().trim();
+      const position = (row.Position || row.position || row.Designation || row.POSITION || 'Staff Member').toString().trim();
+      let employee_code = (row.EmployeeCode || row.employee_code || row['Employee Code'] || row['Emp Code'] || row.CODE || '').toString().trim();
+      const role = (row.Role || row.role || 'EMPLOYEE').toString().trim().toUpperCase() === 'HR_ADMIN' ? 'HR_ADMIN' : 'EMPLOYEE';
+
+      if (!name || !email) {
+        errors.push(`Row ${rowNum}: Missing name or email.`);
+        skippedCount++;
+        continue;
+      }
+
+      if (!employee_code) {
+        employee_code = `EMP-${Math.floor(1000 + Math.random() * 9000)}`;
+      }
+
+      // Check duplicate
+      const existingEmail = await getOne('SELECT id FROM users WHERE email = ?', [email]);
+      if (existingEmail) {
+        errors.push(`Row ${rowNum}: Email "${email}" already exists.`);
+        skippedCount++;
+        continue;
+      }
+
+      const existingCode = await getOne('SELECT id FROM users WHERE employee_code = ?', [employee_code]);
+      if (existingCode) {
+        employee_code = `${employee_code}-${Math.floor(10 + Math.random() * 90)}`;
+      }
+
+      // Insert User
+      const result = await execute(
+        `INSERT INTO users (name, email, password_hash, role, department, position, employee_code, join_date)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, email, defaultPasswordHash, role, department, position, employee_code, new Date().toISOString().split('T')[0]]
+      );
+
+      const userId = result.lastID;
+
+      // Insert Default Leave Balance
+      await execute(
+        `INSERT INTO leave_balances (user_id, sick_leave, casual_leave, earned_leave, deducted_leave)
+         VALUES (?, 12.0, 10.0, 15.0, 0.0)`,
+        [userId]
+      );
+
+      addedCount++;
+      addedUsers.push({ id: userId, name, email, department, position, employee_code, role });
+    }
+
+    res.json({
+      success: true,
+      message: `Bulk import completed: ${addedCount} employees added successfully, ${skippedCount} skipped.`,
+      addedCount,
+      skippedCount,
+      errors,
+      addedUsers
+    });
+  } catch (err) {
+    console.error('uploadEmployeesExcel error:', err);
+    res.status(500).json({ success: false, message: 'Failed to process Excel bulk upload file.' });
+  }
+}
+
+async function downloadSampleExcelTemplate(req, res) {
+  try {
+    const xlsx = require('xlsx');
+
+    const sampleData = [
+      {
+        'Name': 'Robert Taylor',
+        'Email': 'robert@company.com',
+        'Department': 'Engineering',
+        'Position': 'DevOps Lead',
+        'Employee Code': 'EMP-104',
+        'Role': 'EMPLOYEE'
+      },
+      {
+        'Name': 'Jessica Alba',
+        'Email': 'jessica@company.com',
+        'Department': 'Design',
+        'Position': 'Senior Product Designer',
+        'Employee Code': 'EMP-105',
+        'Role': 'EMPLOYEE'
+      }
+    ];
+
+    const wb = xlsx.utils.book_new();
+    const ws = xlsx.utils.json_to_sheet(sampleData);
+
+    // Auto col width
+    ws['!cols'] = [
+      { wch: 20 },
+      { wch: 25 },
+      { wch: 18 },
+      { wch: 25 },
+      { wch: 15 },
+      { wch: 12 }
+    ];
+
+    xlsx.utils.book_append_sheet(wb, ws, 'Sample Employees');
+    const buffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="sample_employee_import.xlsx"');
+    res.send(buffer);
+  } catch (err) {
+    console.error('downloadSampleExcelTemplate error:', err);
+    res.status(500).json({ success: false, message: 'Error generating sample template.' });
+  }
+}
+
 module.exports = {
   getDashboardStats,
   getAnalytics,
   getEmployees,
   getCompanySettings,
   updateCompanySettings,
-  exportReport
+  exportReport,
+  uploadEmployeesExcel,
+  downloadSampleExcelTemplate
 };

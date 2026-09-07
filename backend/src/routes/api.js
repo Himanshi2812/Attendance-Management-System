@@ -8,6 +8,9 @@ const hrController = require('../controllers/hrController');
 
 const { verifyToken, isHRAdmin } = require('../middleware/authMiddleware');
 
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
 // --- Auth Routes ---
 router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
@@ -27,6 +30,8 @@ router.get('/leaves/my-leaves', verifyToken, leaveController.getMyLeaves);
 router.get('/hr/stats', verifyToken, isHRAdmin, hrController.getDashboardStats);
 router.get('/hr/analytics', verifyToken, isHRAdmin, hrController.getAnalytics);
 router.get('/hr/employees', verifyToken, isHRAdmin, hrController.getEmployees);
+router.post('/hr/upload-employees', verifyToken, isHRAdmin, upload.single('file'), hrController.uploadEmployeesExcel);
+router.get('/hr/sample-excel', verifyToken, isHRAdmin, hrController.downloadSampleExcelTemplate);
 router.get('/hr/attendance', verifyToken, isHRAdmin, attendanceController.getAllAttendanceHR);
 router.post('/hr/attendance/manual', verifyToken, isHRAdmin, attendanceController.manualEntryHR);
 router.get('/hr/leaves', verifyToken, isHRAdmin, leaveController.getAllLeaveRequestsHR);

@@ -20,7 +20,10 @@ import {
   Save,
   Plus,
   ChevronRight,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Upload,
+  FileUp,
+  AlertCircle
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -67,6 +70,13 @@ export default function HRDashboard() {
   // HR Leave Decision state
   const [decisionNotes, setDecisionNotes] = useState({});
 
+  // Excel Bulk Import Modal State
+  const [showExcelModal, setShowExcelModal] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelUploading, setExcelUploading] = useState(false);
+  const [excelResult, setExcelResult] = useState(null);
+  const [excelError, setExcelError] = useState(null);
+
   useEffect(() => {
     loadHRData();
   }, [dateFilter, statusFilter, searchTerm]);
@@ -108,6 +118,51 @@ export default function HRDashboard() {
       link.remove();
     } catch (err) {
       console.error('Export CSV error:', err);
+    }
+  };
+
+  const handleDownloadSampleExcel = async () => {
+    try {
+      const response = await API.get('/hr/sample-excel', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'sample_employee_import.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Download sample Excel error:', err);
+    }
+  };
+
+  const handleBulkExcelUpload = async (e) => {
+    e.preventDefault();
+    if (!excelFile) {
+      setExcelError('Please select an Excel (.xlsx, .xls) or CSV file first.');
+      return;
+    }
+
+    setExcelUploading(true);
+    setExcelError(null);
+    setExcelResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', excelFile);
+
+      const res = await API.post('/hr/upload-employees', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.data.success) {
+        setExcelResult(res.data);
+        loadHRData();
+      }
+    } catch (err) {
+      setExcelError(err.response?.data?.message || 'Failed to process Excel file upload.');
+    } finally {
+      setExcelUploading(false);
     }
   };
 
@@ -191,7 +246,15 @@ export default function HRDashboard() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-4 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <button
+            onClick={() => { setShowExcelModal(true); setExcelFile(null); setExcelResult(null); setExcelError(null); }}
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Bulk Import Excel</span>
+          </button>
+
           <button
             onClick={() => setShowOverrideModal(true)}
             className={`px-4 py-2.5 border text-xs font-semibold rounded-lg transition flex items-center space-x-2 ${
@@ -405,9 +468,41 @@ export default function HRDashboard() {
 
       {/* TAB 2: Employee Directory */}
       {activeTab === 'employees' && (
-        <div className={`border rounded-2xl overflow-hidden shadow-xs ${
-          isDark ? 'bg-[#111827] border-[#1f293d]' : 'bg-white border-slate-200'
-        }`}>
+        <div className="space-y-4">
+          <div className={`border p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs ${
+            isDark ? 'bg-[#111827] border-[#1f293d]' : 'bg-white border-slate-200'
+          }`}>
+            <div>
+              <h2 className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                Staff Directory ({employees.length} Active Profiles)
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">Manage workforce profiles, leave balances, and bulk import data</p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleDownloadSampleExcel}
+                className={`px-3.5 py-2 border text-xs font-semibold rounded-lg transition flex items-center space-x-1.5 ${
+                  isDark ? 'bg-[#090d16] border-[#1f293d] text-slate-300 hover:bg-[#1f293d]' : 'bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Download className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Sample Excel Template</span>
+              </button>
+
+              <button
+                onClick={() => { setShowExcelModal(true); setExcelFile(null); setExcelResult(null); setExcelError(null); }}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center space-x-2"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Bulk Import Excel / CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <div className={`border rounded-2xl overflow-hidden shadow-xs ${
+            isDark ? 'bg-[#111827] border-[#1f293d]' : 'bg-white border-slate-200'
+          }`}>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -451,6 +546,7 @@ export default function HRDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         </div>
       )}
@@ -735,6 +831,122 @@ export default function HRDashboard() {
                   className="px-4 py-2 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
                   Save Record
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Excel Import Modal */}
+      {showExcelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+          <div className={`border p-6 rounded-2xl w-full max-w-lg shadow-2xl space-y-4 ${
+            isDark ? 'bg-[#111827] border-[#1f293d]' : 'bg-white border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between border-b pb-3 border-slate-200">
+              <div className="flex items-center space-x-2">
+                <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+                <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Bulk Import Employee Data</h3>
+              </div>
+              <button onClick={() => setShowExcelModal(false)} className="text-slate-400 hover:text-slate-700">✕</button>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Upload an Excel (<span className="font-mono text-emerald-600 font-semibold">.xlsx, .xls</span>) or CSV file containing staff records. New staff will receive default leave quotas automatically.
+            </p>
+
+            <div className={`p-4 rounded-xl border flex items-center justify-between text-xs ${
+              isDark ? 'bg-[#090d16] border-[#1f293d]' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <div className="space-y-0.5">
+                <div className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>Need a sample Excel template?</div>
+                <div className="text-[11px] text-slate-500">Download formatted spreadsheet with sample headers.</div>
+              </div>
+              <button
+                type="button"
+                onClick={handleDownloadSampleExcel}
+                className="px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 rounded-lg font-semibold text-xs transition shrink-0 flex items-center space-x-1"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Template</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleBulkExcelUpload} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">Select Excel / CSV File</label>
+                <div className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
+                  excelFile ? 'border-emerald-500 bg-emerald-50/20' : isDark ? 'border-[#1f293d] bg-[#090d16]' : 'border-slate-300 bg-slate-50'
+                }`}>
+                  <input
+                    type="file"
+                    accept=".xlsx, .xls, .csv"
+                    onChange={(e) => {
+                      if (e.target.files[0]) {
+                        setExcelFile(e.target.files[0]);
+                        setExcelError(null);
+                      }
+                    }}
+                    className="hidden"
+                    id="excel-file-input"
+                  />
+                  <label htmlFor="excel-file-input" className="cursor-pointer space-y-2 block">
+                    <FileUp className={`w-8 h-8 mx-auto ${excelFile ? 'text-emerald-600' : 'text-slate-400'}`} />
+                    {excelFile ? (
+                      <div>
+                        <div className={`text-xs font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{excelFile.name}</div>
+                        <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">{(excelFile.size / 1024).toFixed(1)} KB • Ready to upload</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className={`text-xs font-semibold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>Click to browse or drag Excel / CSV file</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Supports .xlsx, .xls, .csv up to 10MB</div>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              {excelError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-xs font-semibold flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>{excelError}</span>
+                </div>
+              )}
+
+              {excelResult && (
+                <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl space-y-2 text-xs">
+                  <div className="font-bold flex items-center space-x-2 text-emerald-800">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>{excelResult.message}</span>
+                  </div>
+                  {excelResult.errors && excelResult.errors.length > 0 && (
+                    <div className="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded border border-amber-200 space-y-1 max-h-28 overflow-y-auto">
+                      <div className="font-semibold">Import Notes / Skipped Records:</div>
+                      {excelResult.errors.map((errNote, idx) => (
+                        <div key={idx}>• {errNote}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowExcelModal(false)}
+                  className="px-4 py-2.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  disabled={excelUploading || !excelFile}
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-lg transition flex items-center space-x-2 shadow-xs"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>{excelUploading ? 'Importing Employees...' : 'Upload & Import Staff'}</span>
                 </button>
               </div>
             </form>
