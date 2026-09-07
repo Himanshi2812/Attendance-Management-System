@@ -22,19 +22,87 @@ An enterprise-grade, production-ready **Employee Attendance Management System** 
 
 ## Technology Stack Architecture
 
-### Frontend
-- **Framework**: React 18 (Vite build tool)
-- **Styling**: Tailwind CSS with custom glassmorphism and light/dark theme persistence (`localStorage`)
-- **Data Visualization**: Recharts (14-day attendance trend & department share charts)
-- **Icons**: Lucide Icons
-- **HTTP Client**: Axios with JWT Bearer request interceptors
+### System Architecture Diagram
 
-### Backend
-- **Runtime**: Node.js
-- **Web Framework**: Express.js
-- **Authentication**: JSON Web Tokens (`jsonwebtoken`), `bcryptjs`
-- **File Parsing**: `multer` (memory buffer storage), `xlsx` (SheetJS)
-- **Database Adapters**: SQLite3 (`sqlite3`) and MongoDB (`mongoose`) ODM
+```
++-----------------------------------------------------------------------------------+
+|                                 CLIENT LAYER                                      |
+|  +-----------------------------------------------------------------------------+  |
+|  |                  React 18 SPA (Vite + Tailwind CSS)                         |  |
+|  |   [Employee Dashboard]   [HR Admin Suite]   [Theme Provider]   [Axios API]  |  |
+|  +---------------------------------------+-------------------------------------+  |
++------------------------------------------|----------------------------------------+
+                                           | HTTP / REST (JWT Bearer Token)
+                                           v
++-----------------------------------------------------------------------------------+
+|                                 SERVER LAYER                                      |
+|  +-----------------------------------------------------------------------------+  |
+|  |                             Express.js REST API                             |  |
+|  |  [CORS / JSON Parser] -> [JWT Auth Middleware] -> [Role Guard (isHRAdmin)]  |  |
+|  +---------------------------------------+-------------------------------------+  |
+|                                          |                                        |
+|  +---------------------------------------v-------------------------------------+  |
+|  |                             CONTROLLER LAYER                                |  |
+|  |   [authController]   [attendanceController]   [leaveController]  [hrController]|  |
+|  +---------------------------------------+-------------------------------------+  |
+|                                          |                                        |
+|  +---------------------------------------v-------------------------------------+  |
+|  |                          BUSINESS LOGIC SERVICES                            |  |
+|  |  * Working Hours Engine (checkOut - checkIn)                                    |  |
+|  |  * Leave Deduction Hierarchy (Casual -> Sick -> Unpaid)                       |  |
+|  |  * Status Classification (PRESENT / LATE / HALF_DAY / ABSENT)                |  |
+|  |  * Bulk Excel Parser (Multer + SheetJS XLSX)                                  |  |
+|  +---------------------------------------+-------------------------------------+  |
++------------------------------------------|----------------------------------------+
+                                           | Data Access Layer
+                                           v
++-----------------------------------------------------------------------------------+
+|                                DATABASE LAYER                                     |
+|  +---------------------------------------+-------------------------------------+  |
+|  |     SQLite3 Relational DB Engine      |     MongoDB Mongoose ODM Schemas    |  |
+|  |  (users, attendance, leave_balances,  | (User.js, Attendance.js,             |  |
+|  |   leave_requests, company_settings)   |  LeaveBalance.js, LeaveRequest.js)  |  |
+|  +---------------------------------------+-------------------------------------+  |
++-----------------------------------------------------------------------------------+
+```
+
+### Component Flow (Mermaid Architecture)
+
+```mermaid
+graph TD
+    subgraph ClientLayer ["Client Layer (React 18 SPA)"]
+        UI["User Interface (Tailwind CSS)"]
+        AuthContext["Auth Context & Theme Provider"]
+        Axios["Axios REST Client"]
+        UI --> AuthContext
+        AuthContext --> Axios
+    end
+
+    subgraph ServerLayer ["Server Layer (Node.js & Express API)"]
+        Router["Express Router (/api/*)"]
+        Middleware["JWT Verification & HR Role Guard"]
+        Controllers["Controllers (Auth, Attendance, Leaves, HR)"]
+        Services["Business Logic & Deduction Engine"]
+        Router --> Middleware
+        Middleware --> Controllers
+        Controllers --> Services
+    end
+
+    subgraph DataLayer ["Data Layer"]
+        SQLite[("SQLite3 Database")]
+        Mongo[("MongoDB / Mongoose ODM")]
+    end
+
+    Axios -->|HTTP / JSON + JWT| Router
+    Services --> SQLite
+    Services --> Mongo
+```
+
+### Technology Breakdown
+
+- **Frontend**: React 18 (Vite build tool), Tailwind CSS, Recharts (14-day attendance trend & department share charts), Lucide Icons, Axios.
+- **Backend**: Node.js, Express.js REST API, JSON Web Tokens (`jsonwebtoken`), `bcryptjs`, `multer`, `xlsx` (SheetJS).
+- **Database**: SQLite3 (`sqlite3`) and MongoDB (`mongoose`) ODM.
 
 ---
 
